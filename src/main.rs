@@ -4,6 +4,7 @@ use axum::{
     Json,
 };
 use serde::Serialize;
+use tokio::net::TcpListener;
 
 #[derive(Serialize)]
 struct HealthResponse {
@@ -22,10 +23,11 @@ async fn main() {
     let app = Router::new()
         .route("/health", get(health));
 
-    println!("🚀 Server jalan di http://localhost:3000");
-
-    axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
-        .serve(app.into_make_service())
+    let listener = TcpListener::bind("0.0.0.0:3000")
         .await
         .unwrap();
+
+    println!("🚀 Server jalan di http://localhost:3000");
+
+    axum::serve(listener, app).await.unwrap();
 }
